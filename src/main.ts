@@ -9,7 +9,6 @@ const setup = (appElements: AppElements): void => {
     threeScene: threeSceneElement,
     startBtn,
     durationInput,
-    overlayContainer,
     retryBtn,
     controlsContainer,
     nextBtn,
