@@ -14,9 +14,9 @@ export class ThreeScene {
       antialias: true,
       preserveDrawingBuffer: true,
     });
-    this.renderer.setClearColor(0xffffff, 1); // white background
+    this.renderer.setClearColor(0xffffff, 1);
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0xffffff); // ensures background is white
+    this.scene.background = new THREE.Color(0xffffff);
 
     this.camera = new THREE.PerspectiveCamera(
       60,
@@ -44,14 +44,13 @@ export class ThreeScene {
       Math.random() * Math.PI * 2,
       Math.random() * Math.PI * 2
     );
-    // random FOV but keep camera looking at the center
+
     this.camera.fov = 40 + Math.random() * 50;
     this.camera.updateProjectionMatrix();
     this.camera.lookAt(0, 0, 0);
     this.renderOnce();
   }
 
-  // Force a single render (useful just before capture)
   renderOnce(): void {
     this.renderer.render(this.scene, this.camera);
   }
@@ -66,18 +65,16 @@ export class ThreeScene {
     const h = this.canvas.clientHeight;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.renderer.setPixelRatio(dpr);
-    this.renderer.setSize(w, h, false); // false -> don't update style, we manage it via CSS
+    this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
   }
 
-  // capture dataURL from the renderer's canvas (ensure a fresh render)
   getImage(): string {
     this.renderOnce();
     return this.renderer.domElement.toDataURL("image/png");
   }
 
-  // expose the actual DOM canvas and its pixel size
   getCanvas(): HTMLCanvasElement {
     return this.renderer.domElement;
   }

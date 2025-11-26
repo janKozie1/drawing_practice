@@ -6,6 +6,10 @@ export class DrawCanvas {
 
   private dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+  // --- Undo stack ---
+  private undoStack: ImageData[] = [];
+  private maxUndo = 30;
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
@@ -19,35 +23,59 @@ export class DrawCanvas {
     canvas.addEventListener("pointerleave", () => this.stop());
   }
 
+  // Save canvas state for undo
+  private saveState(): void {
+    const snapshot = this.ctx.getImageData(
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+    );
+    this.undoStack.push(snapshot);
+
+    if (this.undoStack.length > this.maxUndo) {
+      this.undoStack.shift();
+    }
+  }
+
+  // Undo last action
+  undo(): void {
+    if (this.undoStack.length === 0) return;
+
+    const last = this.undoStack.pop()!;
+    this.ctx.putImageData(last, 0, 0);
+  }
+
   private resize(): void {
-    // Use DPR so the canvas has correct pixel resolution
     const cssW = this.canvas.clientWidth;
     const cssH = this.canvas.clientHeight;
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
-    // set the internal pixel size
+
     this.canvas.width = Math.max(1, Math.floor(cssW * this.dpr));
     this.canvas.height = Math.max(1, Math.floor(cssH * this.dpr));
 
-    // keep CSS size unchanged so layout doesn't break
     this.canvas.style.width = `${cssW}px`;
     this.canvas.style.height = `${cssH}px`;
 
-    // scale drawing operations to DPR
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 
   private start(e: PointerEvent): void {
+    // Save state before starting a new stroke
+    this.saveState();
+
     this.drawing = true;
-    // offsetX/Y are in CSS pixels; because of ctx transform they align correctly
     this.ctx.beginPath();
     this.ctx.moveTo(e.offsetX, e.offsetY);
   }
 
   private move(e: PointerEvent): void {
     if (!this.drawing) return;
+
     this.ctx.lineWidth = 3;
     this.ctx.lineCap = "round";
     this.ctx.strokeStyle = "black";
+
     this.ctx.lineTo(e.offsetX, e.offsetY);
     this.ctx.stroke();
   }
@@ -57,11 +85,13 @@ export class DrawCanvas {
   }
 
   clear(): void {
+    // Save state before clearing
+    this.saveState();
+
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   getImage(): string {
-    // canvas.toDataURL uses internal pixel buffer (so DPR aware)
     return this.canvas.toDataURL("image/png");
   }
 

@@ -113,7 +113,9 @@ html {
   content: "";
   top: 0;
   left: 100%;
-  width: 1px;
+  width: 5px;
+  transform: translateX(-50%);
   background: black;
   height: 100%;
+  z-index: 99;
 }
