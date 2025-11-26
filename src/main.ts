@@ -42,7 +42,7 @@ const setup = (appElements: AppElements): void => {
     nextBtn.style.display = "block";
     controlsContainer.style.display = "flex";
 
-    const x = 1.1166666666666667;
+    const dpr = drawCanvas.getDPR();
 
     // Capture Three.js scene as image
     const cubeImg = threeScene.getImage();
@@ -57,22 +57,27 @@ const setup = (appElements: AppElements): void => {
 
       imgDraw.onload = () => {
         // Clear the canvas (pixel buffer)
-        ctx.clearRect(0, 0, drawCanvasEl.width * x, drawCanvasEl.height * x);
+        ctx.clearRect(
+          0,
+          0,
+          drawCanvasEl.width * dpr,
+          drawCanvasEl.height * dpr
+        );
 
         // Draw Three.js scene and user drawing using **canvas pixel dimensions**
         ctx.drawImage(
           imgCube,
           0,
           0,
-          drawCanvasEl.width * x,
-          drawCanvasEl.height * x
+          drawCanvasEl.width * dpr,
+          drawCanvasEl.height * dpr
         );
         ctx.drawImage(
           imgDraw,
           0,
           0,
-          drawCanvasEl.width * x,
-          drawCanvasEl.height * x
+          drawCanvasEl.width * dpr,
+          drawCanvasEl.height * dpr
         );
       };
     };

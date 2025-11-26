@@ -4,6 +4,8 @@ export class DrawCanvas {
   private ctx: CanvasRenderingContext2D;
   private drawing = false;
 
+  private dpr = Math.min(window.devicePixelRatio || 1, 2);
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
@@ -21,18 +23,17 @@ export class DrawCanvas {
     // Use DPR so the canvas has correct pixel resolution
     const cssW = this.canvas.clientWidth;
     const cssH = this.canvas.clientHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
     // set the internal pixel size
-    this.canvas.width = Math.max(1, Math.floor(cssW * dpr));
-    this.canvas.height = Math.max(1, Math.floor(cssH * dpr));
+    this.canvas.width = Math.max(1, Math.floor(cssW * this.dpr));
+    this.canvas.height = Math.max(1, Math.floor(cssH * this.dpr));
 
-    console.log({ dpr });
     // keep CSS size unchanged so layout doesn't break
     this.canvas.style.width = `${cssW}px`;
     this.canvas.style.height = `${cssH}px`;
 
     // scale drawing operations to DPR
-    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 
   private start(e: PointerEvent): void {
@@ -66,5 +67,9 @@ export class DrawCanvas {
 
   getCanvas(): HTMLCanvasElement {
     return this.canvas;
+  }
+
+  getDPR(): number {
+    return this.dpr;
   }
 }
